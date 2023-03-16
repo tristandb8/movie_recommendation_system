@@ -3,6 +3,7 @@ MovieLens, a movie recommendation service, has users enter which movie they rece
 
 The goal of this project is to build a deep learning network, to propose which movie the user should watch next, based on previously watched/rated movies.
 
+Best score achived: 84.3%
 From users that have used the platform for over 10 years, we are able to get an accuracy of 98.87%
 
 ## Downloading dataset
