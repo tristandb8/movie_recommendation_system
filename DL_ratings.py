@@ -1,5 +1,6 @@
 import torch
 from torch.utils.data import Dataset
+import sys
 
 class RatingDataset(Dataset):
     def __init__(self, ratings, all_movieIds, num_negatives):
@@ -17,8 +18,9 @@ class RatingDataset(Dataset):
         count = 0
         for user in self.unique_users:
             count += 1
-            if (count % 1000 == 0):
-                print("Progress on RatingDataset init: ",  int(count/num_users *100))
+            if (count % 100 == 0):
+                print("Progress on RatingDataset init: ",  int(count/num_users *100), "%")
+                sys.stdout.flush()
             items_neg = []
             user_item_set = set(zip(self.users_pos.tolist(), self.items_pos.tolist()))
             while len(items_neg) < num_negatives:

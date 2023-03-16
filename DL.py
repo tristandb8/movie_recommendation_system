@@ -26,12 +26,9 @@ class MovieLensTrainDataset(Dataset):
     def get_dataset(self, ratings, all_movieIds, ratingDS):
         batch_size = 10000
         train_loader = DataLoader(ratingDS, batch_size=batch_size, shuffle=True)
-        print(len(train_loader))
         users, items, labels = [], [], []
         # Iterate over the data in batches
         for batch_idx, (batch_pos, batch_neg) in enumerate(train_loader):
-            if (batch_idx % 20 == 0):
-                print(batch_idx / len(train_loader))
             # Process the batch here
             batch_users_pos = batch_pos[0].tolist()
             batch_items_pos = batch_pos[1].tolist()

@@ -1,0 +1,18 @@
+------------ params ------------
+num_epoch:  4
+numdays:  712 days, 0:00:00
+--------------------------------
+Using CUDA device: cuda
+Device index: 0
+Filtering users for more than 712 days, 0:00:00 days
+Keeping 11122 users out of 138493
+Progress on RatingDataset init:  0 %
+Progress on RatingDataset init:  1 %
+Progress on RatingDataset init:  2 %
+Progress on RatingDataset init:  3 %
+Progress on RatingDataset init:  4 %
+Progress on RatingDataset init:  5 %
+Progress on RatingDataset init:  6 %
+Progress on RatingDataset init:  7 %
+Progress on RatingDataset init:  8 %
+Progress on RatingDataset init:  8 %

@@ -13,7 +13,17 @@ import warnings
 warnings.filterwarnings('ignore')
 from NCF import NCF
 from DL import MovieLensTrainDataset
+import sys
 
+
+numdays = timedelta(days = 712)
+num_epoch = 4
+
+print("------------ params ------------")
+print("num_epoch: ", num_epoch)
+print("numdays: ", numdays)
+print("--------------------------------")
+sys.stdout.flush()
 
 # Check if CUDA is available
 if torch.cuda.is_available():
@@ -24,10 +34,7 @@ else:
     device = torch.device('cpu')
     print('CUDA is not available, using CPU.')
 
-numdays = timedelta(days = 1000)
-num_epoch = 3
-
-ratings = pd.read_csv('movie_rec\\movies_20m\\rating.csv', 
+ratings = pd.read_csv('movies_20m\\rating.csv', 
 parse_dates=['timestamp'])
 ratings['rank_latest'] = ratings.groupby(['userId'])['timestamp'] \
                                 .rank(method='first', ascending=False)
@@ -44,12 +51,13 @@ for id in last_ratings['userId'].values:
     if numdays < dt:
         ids_to_keep.append(id)
 print("Keeping " + str(len(ids_to_keep)) + " users out of "
-      + str(len(ratings.userId.unique())))
+    + str(len(ratings.userId.unique())))
+sys.stdout.flush()
 ratings = ratings[ratings.userId.isin(ids_to_keep)]
 
 
 train_ratings = ratings[ratings['rank_latest'] != 1]
-test_ratings = last_ratings
+test_ratings = ratings[ratings['rank_latest'] == 1]
 
 # drop columns that we no longer need
 train_ratings = train_ratings[['userId', 'movieId', 'rating']]
@@ -62,7 +70,7 @@ all_movieIds = ratings['movieId'].unique()
 
 model = NCF(num_users, num_items).cuda()
 train_dataloader = DataLoader(MovieLensTrainDataset(ratings, all_movieIds),
-                              batch_size=512, num_workers=0)
+                            batch_size=512, num_workers=0)
 
 criterion = nn.BCELoss()
 optimizer = torch.optim.Adam(model.parameters())
@@ -87,7 +95,7 @@ for epoch in range(num_epoch):
             print('Epoch: {} Loss: {:.4f}'.format(epoch,np.mean(losses)))
     print("End of epoch " + str(epoch) + ", mean loss: " + str(np.mean(losses)))
 
-    # User-item pairs for testing
+# User-item pairs for testing
 test_user_item_set = set(zip(test_ratings['userId'], test_ratings['movieId']))
 
 # Dict of all items that are interacted with by each user
@@ -111,3 +119,4 @@ for (u,i) in (test_user_item_set):
         hits.append(0)
         
 print("The Hit Ratio @ 10 is {:.2f}%".format(np.average(hits) * 100))
+    # sys.stdout = original_stdout # Reset the standard output to its original value

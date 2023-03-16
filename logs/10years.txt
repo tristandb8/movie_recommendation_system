@@ -1,0 +1,45 @@
+------------ params ------------
+num_epoch:  4
+numdays:  3560 days, 0:00:00
+--------------------------------
+Using CUDA device: cuda
+Device index: 0
+Filtering users for more than 3560 days, 0:00:00 days
+Keeping 1237 users out of 138493
+Progress on RatingDataset init:  8 %
+Progress on RatingDataset init:  16 %
+Progress on RatingDataset init:  24 %
+Progress on RatingDataset init:  32 %
+Progress on RatingDataset init:  40 %
+Progress on RatingDataset init:  48 %
+Progress on RatingDataset init:  56 %
+Progress on RatingDataset init:  64 %
+Progress on RatingDataset init:  72 %
+Progress on RatingDataset init:  80 %
+Progress on RatingDataset init:  88 %
+Progress on RatingDataset init:  97 %
+Epoch: 0 Loss: 0.4749
+Epoch: 0 Loss: 0.3162
+Epoch: 0 Loss: 0.2309
+Epoch: 0 Loss: 0.1815
+Epoch: 0 Loss: 0.1500
+End of epoch 0, mean loss: 0.1311243232468341
+Epoch: 1 Loss: 0.0172
+Epoch: 1 Loss: 0.0156
+Epoch: 1 Loss: 0.0148
+Epoch: 1 Loss: 0.0141
+Epoch: 1 Loss: 0.0134
+End of epoch 1, mean loss: 0.012898430058858124
+Epoch: 2 Loss: 0.0094
+Epoch: 2 Loss: 0.0088
+Epoch: 2 Loss: 0.0085
+Epoch: 2 Loss: 0.0083
+Epoch: 2 Loss: 0.0079
+End of epoch 2, mean loss: 0.00793923193312071
+Epoch: 3 Loss: 0.0062
+Epoch: 3 Loss: 0.0058
+Epoch: 3 Loss: 0.0057
+Epoch: 3 Loss: 0.0056
+Epoch: 3 Loss: 0.0054
+End of epoch 3, mean loss: 0.005256456935758767
+The Hit Ratio @ 10 is 98.87%
