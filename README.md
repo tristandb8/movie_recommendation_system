@@ -1,4 +1,6 @@
 # Project Overview
+This my project for Machine Learning Spring 2023
+
 MovieLens, a movie recommendation service, has users enter which movie they recently liked, to get recommendations for a next movie to watch.
 
 The goal of this project is to build a deep learning network, to propose which movie the user should watch next, based on previously watched/rated movies.
