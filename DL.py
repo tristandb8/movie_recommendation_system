@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 from DL_ratings import RatingDataset
+import numpy as np
 
 class MovieLensTrainDataset(Dataset):
     """MovieLens PyTorch Dataset for Training
@@ -12,10 +13,7 @@ class MovieLensTrainDataset(Dataset):
     """
 
     def __init__(self, ratings, all_movieIds):
-        num_negatives = 4
-        ratingDS = RatingDataset(ratings, all_movieIds, num_negatives)
-        self.users, self.items, self.labels = self.get_dataset(ratings, all_movieIds, ratingDS)
-        
+        self.users, self.items, self.labels = self.get_dataset(ratings, all_movieIds)
 
     def __len__(self):
         return len(self.users)
@@ -23,29 +21,21 @@ class MovieLensTrainDataset(Dataset):
     def __getitem__(self, idx):
         return self.users[idx], self.items[idx], self.labels[idx]
 
-    def get_dataset(self, ratings, all_movieIds, ratingDS):
-        batch_size = 10000
-        train_loader = DataLoader(ratingDS, batch_size=batch_size, shuffle=True)
+    def get_dataset(self, ratings, all_movieIds):
         users, items, labels = [], [], []
-        # Iterate over the data in batches
-        for batch_idx, (batch_pos, batch_neg) in enumerate(train_loader):
-            # Process the batch here
-            batch_users_pos = batch_pos[0].tolist()
-            batch_items_pos = batch_pos[1].tolist()
-            batch_labels_pos = batch_pos[2].tolist()
-            
-            # Add positive samples to the training data
-            users += batch_users_pos
-            items += batch_items_pos
-            labels += batch_labels_pos
-            
-            # Add negative samples to the training data
-            for batch_neg_sample in batch_neg:
-                batch_users_neg = batch_neg_sample[0].tolist()
-                batch_items_neg = batch_neg_sample[1].tolist()
-                batch_labels_neg = batch_neg_sample[2].tolist()
-                users += batch_users_neg
-                items += batch_items_neg
-                labels += batch_labels_neg
+        user_item_set = set(zip(ratings['userId'], ratings['movieId']))
+
+        num_negatives = 4
+        for u, i in user_item_set:
+            users.append(u)
+            items.append(i)
+            labels.append(1)
+            for _ in range(num_negatives):
+                negative_item = np.random.choice(all_movieIds)
+                while (u, negative_item) in user_item_set:
+                    negative_item = np.random.choice(all_movieIds)
+                users.append(u)
+                items.append(negative_item)
+                labels.append(0)
 
         return torch.tensor(users), torch.tensor(items), torch.tensor(labels)
