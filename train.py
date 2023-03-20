@@ -14,16 +14,19 @@ warnings.filterwarnings('ignore')
 from NCF import NCF
 from DL import MovieLensTrainDataset
 import sys
+import math
 
 
 def main(argv):
     num_epoch = 4
     filterbytime = False
-    keptUsersRatio = 0.3
-    numdays = timedelta(days = 712)
+    keptUsersRatio = 0.1
+    numdays = timedelta(days = 356*3)
+    includeRating = True
 
     print("------------ params ------------")
     print("num_epoch: ", num_epoch)
+    print("includeRating: ", includeRating)
     print("filterbytime: ", filterbytime)
     if filterbytime:
         print("numdays: ", numdays)
@@ -43,6 +46,9 @@ def main(argv):
 
     ratings = pd.read_csv('movies_20m\\rating.csv', 
     parse_dates=['timestamp'])
+    # minTime = ratings.timestamp.min()
+    ratings.rating *= 2
+    ratings.rating = ratings.rating.astype(int)
 
     if filterbytime:
         ratings['rank_first'] = ratings.groupby(['userId'])['timestamp'] \
@@ -87,15 +93,16 @@ def main(argv):
     num_items = ratings['movieId'].max()+1
     all_movieIds = ratings['movieId'].unique()
 
-    model = NCF(num_users, num_items).cuda()
-    train_dataloader = DataLoader(MovieLensTrainDataset(ratings, all_movieIds),
+    model = NCF(num_users, num_items, includeRating).cuda()
+    train_dataloader = DataLoader(MovieLensTrainDataset(ratings, all_movieIds, includeRating),
                                 batch_size=512, num_workers=0)
 
-    criterion = nn.BCELoss()
+    criterionB = nn.BCELoss().cuda()
+    criterion = nn.CrossEntropyLoss().cuda()
     optimizer = torch.optim.Adam(model.parameters())
 
     # User-item pairs for testing
-    test_user_item_set = set(zip(test_ratings['userId'], test_ratings['movieId']))
+    test_user_item_set = set(zip(test_ratings['userId'], test_ratings['movieId'], test_ratings['rating']))
     # Dict of all items that are interacted with by each user
     user_interacted_items = ratings.groupby('userId')['movieId'].apply(list).to_dict()
 
@@ -110,8 +117,13 @@ def main(argv):
             item_input = Variable(item_input.cuda())
             labels = torch.as_tensor(labels)
             labels = Variable(labels.cuda())
-            predicted_labels = model(user_input, item_input).squeeze()
-            loss = criterion(predicted_labels,torch.tensor(labels, dtype=torch.float32))
+            includeRating = True
+            predB, pred = model(user_input, item_input)#.squeeze()
+            predB = predB.squeeze()
+            pred = pred.squeeze()
+            lossS = criterionB(predB,torch.tensor(labels > 0, dtype=torch.float32))
+            lossR = criterion(pred,labels.long())
+            loss = lossS + lossR
             losses.append(loss.item())
             loss.backward()
             optimizer.step()
@@ -129,23 +141,34 @@ def main(argv):
 
 def getTestAcc(test_user_item_set, user_interacted_items, all_movieIds, model, epoch):
     hits = []
-    for (u,i) in (test_user_item_set):
+    correctRatings = []
+    for (u,i,r) in (test_user_item_set):
         interacted_items = user_interacted_items[u]
         not_interacted_items = set(all_movieIds) - set(interacted_items)
         selected_not_interacted = list(np.random.choice(list(not_interacted_items), 99))
         test_items = selected_not_interacted + [i]
         
-        predicted_labels = np.squeeze(model(torch.tensor([u]*100).cuda(), 
-                                            torch.tensor(test_items).cuda()).cpu().detach().numpy())
+        predB, pred = model(torch.tensor([u]*100).cuda(), 
+                                            torch.tensor(test_items).cuda())
+        predB = predB.cpu().detach().numpy().squeeze()
+        # pred = pred.cpu().detach().numpy().squeeze()
         
-        top10_items = [test_items[i] for i in np.argsort(predicted_labels)[::-1][0:10].tolist()]
+        top10_items = [test_items[i] for i in np.argsort(predB)[::-1][0:10].tolist()]
         
         if i in top10_items:
             hits.append(1)
         else:
             hits.append(0)
+
+        predB, pred = model(torch.tensor(u).cuda(), torch.tensor(i).cuda())
+        pred = pred.cpu().detach().numpy().squeeze()
+        pred = np.argmax(pred)
+        correctRatings.append(pred == r)
+
+
             
     print("The Hit Ratio @ 10 is ", np.average(hits) * 100, "%", " at epoch ", epoch)
+    print("Correct guess percentage: ", np.average(correctRatings) * 100, "%", " at epoch ", epoch)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

@@ -1,0 +1,6 @@
+------------ params ------------
+num_epoch:  4
+includeRating:  True
+filterbytime:  False
+keptUsersRatio:  0.1
+--------------------------------

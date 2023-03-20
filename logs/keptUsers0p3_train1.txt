@@ -61,3 +61,65 @@ Epoch: 1 Loss: 0.2101
 Epoch: 1 Loss: 0.2099
 End of epoch 1, mean loss: 0.20984174786415452
 The Hit Ratio @ 10 is  81.786891953691 %  at epoch  1
+Epoch: 2 Loss: 0.2045
+Epoch: 2 Loss: 0.2044
+Epoch: 2 Loss: 0.2039
+Epoch: 2 Loss: 0.2036
+Epoch: 2 Loss: 0.2033
+Epoch: 2 Loss: 0.2030
+Epoch: 2 Loss: 0.2026
+Epoch: 2 Loss: 0.2023
+Epoch: 2 Loss: 0.2020
+Epoch: 2 Loss: 0.2017
+Epoch: 2 Loss: 0.2014
+Epoch: 2 Loss: 0.2010
+Epoch: 2 Loss: 0.2007
+Epoch: 2 Loss: 0.2005
+Epoch: 2 Loss: 0.2002
+Epoch: 2 Loss: 0.1999
+Epoch: 2 Loss: 0.1997
+Epoch: 2 Loss: 0.1994
+Epoch: 2 Loss: 0.1991
+Epoch: 2 Loss: 0.1988
+Epoch: 2 Loss: 0.1986
+Epoch: 2 Loss: 0.1983
+Epoch: 2 Loss: 0.1980
+Epoch: 2 Loss: 0.1978
+Epoch: 2 Loss: 0.1976
+Epoch: 2 Loss: 0.1973
+Epoch: 2 Loss: 0.1971
+Epoch: 2 Loss: 0.1969
+Epoch: 2 Loss: 0.1967
+End of epoch 2, mean loss: 0.19658665608609177
+The Hit Ratio @ 10 is  84.62704888439599 %  at epoch  2
+Epoch: 3 Loss: 0.1900
+Epoch: 3 Loss: 0.1900
+Epoch: 3 Loss: 0.1895
+Epoch: 3 Loss: 0.1894
+Epoch: 3 Loss: 0.1893
+Epoch: 3 Loss: 0.1891
+Epoch: 3 Loss: 0.1889
+Epoch: 3 Loss: 0.1888
+Epoch: 3 Loss: 0.1886
+Epoch: 3 Loss: 0.1886
+Epoch: 3 Loss: 0.1884
+Epoch: 3 Loss: 0.1882
+Epoch: 3 Loss: 0.1880
+Epoch: 3 Loss: 0.1880
+Epoch: 3 Loss: 0.1878
+Epoch: 3 Loss: 0.1877
+Epoch: 3 Loss: 0.1876
+Epoch: 3 Loss: 0.1875
+Epoch: 3 Loss: 0.1874
+Epoch: 3 Loss: 0.1872
+Epoch: 3 Loss: 0.1872
+Epoch: 3 Loss: 0.1870
+Epoch: 3 Loss: 0.1869
+Epoch: 3 Loss: 0.1869
+Epoch: 3 Loss: 0.1868
+Epoch: 3 Loss: 0.1867
+Epoch: 3 Loss: 0.1866
+Epoch: 3 Loss: 0.1865
+Epoch: 3 Loss: 0.1865
+End of epoch 3, mean loss: 0.18641819005141239
+The Hit Ratio @ 10 is  86.05675500036104 %  at epoch  3
