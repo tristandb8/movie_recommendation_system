@@ -13,22 +13,26 @@ class MovieLensTrainDataset(Dataset):
     """
 
     def __init__(self, ratings, all_movieIds, includeRating):
-        self.users, self.items, self.labels = self.get_dataset(ratings, all_movieIds, includeRating)
+        self.users, self.items, self.times, self.labels = self.get_dataset(ratings, all_movieIds, includeRating)
 
     def __len__(self):
         return len(self.users)
   
     def __getitem__(self, idx):
-        return self.users[idx], self.items[idx], self.labels[idx]
+        return self.users[idx], self.items[idx], self.times[idx], self.labels[idx]
 
     def get_dataset(self, ratings, all_movieIds, includeRating):
-        users, items, labels = [], [], []
-        user_item_set = set(zip(ratings['userId'], ratings['movieId'], ratings['rating']))
-
+        users, items, times, labels = [], [], [], []
+        print(1)
+        user_item_set = set(zip(ratings['userId'], ratings['movieId'], ratings['rating'], ratings['timestamp']))
+        print(2)
+        movieMeanViewTime = ratings.groupby('movieId')['timestamp'].mean().astype(int).to_dict()
+        print(3)
         num_negatives = 4
-        for u, i, r in user_item_set:
+        for u, i, r, t in user_item_set:
             users.append(u)
             items.append(i)
+            times.append(t)
             if includeRating:
                 labels.append(r)
             else:
@@ -39,6 +43,7 @@ class MovieLensTrainDataset(Dataset):
                     negative_item = np.random.choice(all_movieIds)
                 users.append(u)
                 items.append(negative_item)
+                times.append(movieMeanViewTime[negative_item])
                 labels.append(0)
 
-        return torch.tensor(users), torch.tensor(items), torch.tensor(labels)
+        return torch.tensor(users), torch.tensor(items), torch.tensor(times), torch.tensor(labels)

@@ -18,7 +18,7 @@ import math
 
 
 def main(argv):
-    num_epoch = 4
+    num_epoch = 10
     filterbytime = False
     keptUsersRatio = 0.1
     numdays = timedelta(days = 356*3)
@@ -46,7 +46,9 @@ def main(argv):
 
     ratings = pd.read_csv('movies_20m\\rating.csv', 
     parse_dates=['timestamp'])
-    # minTime = ratings.timestamp.min()
+    ratings["timestamp"] = (ratings.timestamp-ratings.timestamp.min()).astype('timedelta64[M]')
+    ratings["timestamp"] = ratings["timestamp"].astype(int)
+    timerange = ratings["timestamp"].max() + 1
     ratings.rating *= 2
     ratings.rating = ratings.rating.astype(int)
 
@@ -87,13 +89,13 @@ def main(argv):
     # drop columns that we no longer need
     train_ratings = train_ratings[['userId', 'movieId', 'rating']]
     test_ratings = test_ratings[['userId', 'movieId', 'rating']]
-    ratings = ratings[['userId', 'movieId', 'rating']]
+    ratings = ratings[['userId', 'movieId', 'rating', 'timestamp']]
 
     num_users = ratings['userId'].max()+1
     num_items = ratings['movieId'].max()+1
     all_movieIds = ratings['movieId'].unique()
 
-    model = NCF(num_users, num_items, includeRating).cuda()
+    model = NCF(num_users, num_items, includeRating, timerange).cuda()
     train_dataloader = DataLoader(MovieLensTrainDataset(ratings, all_movieIds, includeRating),
                                 batch_size=512, num_workers=0)
 
@@ -102,23 +104,26 @@ def main(argv):
     optimizer = torch.optim.Adam(model.parameters())
 
     # User-item pairs for testing
-    test_user_item_set = set(zip(test_ratings['userId'], test_ratings['movieId'], test_ratings['rating']))
+    test_user_item_set = set(zip(test_ratings['userId'], test_ratings['movieId'], ratings['timestamp'], test_ratings['rating']))
     # Dict of all items that are interacted with by each user
     user_interacted_items = ratings.groupby('userId')['movieId'].apply(list).to_dict()
+    movieMeanViewTime = ratings.groupby('movieId')['timestamp'].mean().astype(int)
+
 
 
     for epoch in range(num_epoch):
         losses = []
         steps = 0
         for i, data in enumerate(train_dataloader, 0):
-            user_input, item_input, labels = data
+            user_input, item_input, time_input, labels = data
             optimizer.zero_grad()
             user_input = Variable(user_input.cuda())
             item_input = Variable(item_input.cuda())
+            time_input = Variable(time_input.cuda())
             labels = torch.as_tensor(labels)
             labels = Variable(labels.cuda())
             includeRating = True
-            predB, pred = model(user_input, item_input)#.squeeze()
+            predB, pred = model(user_input, item_input, time_input)#.squeeze()
             predB = predB.squeeze()
             pred = pred.squeeze()
             lossS = criterionB(predB,torch.tensor(labels > 0, dtype=torch.float32))
@@ -131,7 +136,7 @@ def main(argv):
             if steps % 2000 == 0:
                 print('Epoch: {} Loss: {:.4f}'.format(epoch,np.mean(losses)))
         print("End of epoch " + str(epoch) + ", mean loss: " + str(np.mean(losses)))
-        getTestAcc(test_user_item_set, user_interacted_items, all_movieIds, model, epoch)
+        getTestAcc(test_user_item_set, user_interacted_items, all_movieIds, movieMeanViewTime, model, epoch)
         sys.stdout.flush()
 
 
@@ -139,17 +144,18 @@ def main(argv):
 
 
 
-def getTestAcc(test_user_item_set, user_interacted_items, all_movieIds, model, epoch):
+def getTestAcc(test_user_item_set, user_interacted_items, all_movieIds, movieMeanViewTime, model, epoch):
     hits = []
     correctRatings = []
-    for (u,i,r) in (test_user_item_set):
+    for (u,i,t,r) in (test_user_item_set):
         interacted_items = user_interacted_items[u]
         not_interacted_items = set(all_movieIds) - set(interacted_items)
         selected_not_interacted = list(np.random.choice(list(not_interacted_items), 99))
         test_items = selected_not_interacted + [i]
+        test_times = list(movieMeanViewTime[selected_not_interacted].values) + [t]
         
         predB, pred = model(torch.tensor([u]*100).cuda(), 
-                                            torch.tensor(test_items).cuda())
+                                            torch.tensor(test_items).cuda(), torch.tensor(test_times).cuda())
         predB = predB.cpu().detach().numpy().squeeze()
         # pred = pred.cpu().detach().numpy().squeeze()
         
@@ -160,15 +166,13 @@ def getTestAcc(test_user_item_set, user_interacted_items, all_movieIds, model, e
         else:
             hits.append(0)
 
-        predB, pred = model(torch.tensor(u).cuda(), torch.tensor(i).cuda())
+        predB, pred = model(torch.tensor(u).cuda(), torch.tensor(i).cuda(), torch.tensor(t).cuda())
         pred = pred.cpu().detach().numpy().squeeze()
-        pred = np.argmax(pred)
-        correctRatings.append(pred == r)
+        predmax = np.argmax(pred[1:]) + 1
+        correctRatings.append(int(predmax == r))
 
-
-            
     print("The Hit Ratio @ 10 is ", np.average(hits) * 100, "%", " at epoch ", epoch)
-    print("Correct guess percentage: ", np.average(correctRatings) * 100, "%", " at epoch ", epoch)
+    print("Correct rating percentage: ", np.average(correctRatings) * 100, "%", " at epoch ", epoch)
 
 if __name__ == "__main__":
    main(sys.argv[1:])

@@ -1,0 +1,9 @@
+------------ params ------------
+num_epoch:  50
+includeRating:  True
+filterbytime:  False
+keptUsersRatio:  0.1
+--------------------------------
+Using CUDA device: cuda
+Device index: 0
+There are 2030571 rows of data from 13849 users

@@ -1,0 +1,60 @@
+------------ params ------------
+num_epoch:  10
+includeRating:  True
+filterbytime:  False
+keptUsersRatio:  0.1
+--------------------------------
+Using CUDA device: cuda
+Device index: 0
+There are 2030571 rows of data from 13849 users
+1
+2
+3
+Epoch: 0 Loss: 2.1394
+Epoch: 0 Loss: 2.0433
+Epoch: 0 Loss: 1.9865
+Epoch: 0 Loss: 1.9471
+Epoch: 0 Loss: 1.9175
+Epoch: 0 Loss: 1.8942
+Epoch: 0 Loss: 1.8749
+Epoch: 0 Loss: 1.8585
+Epoch: 0 Loss: 1.8445
+End of epoch 0, mean loss: 1.833183674185912
+The Hit Ratio @ 10 is  97.63159794931042 %  at epoch  0
+Correct rating percentage:  21.9004982309192 %  at epoch  0
+Epoch: 1 Loss: 1.7139
+Epoch: 1 Loss: 1.7100
+Epoch: 1 Loss: 1.7068
+Epoch: 1 Loss: 1.7043
+Epoch: 1 Loss: 1.7020
+Epoch: 1 Loss: 1.7001
+Epoch: 1 Loss: 1.6985
+Epoch: 1 Loss: 1.6969
+Epoch: 1 Loss: 1.6954
+End of epoch 1, mean loss: 1.6941358365738446
+The Hit Ratio @ 10 is  98.93133078200592 %  at epoch  1
+Correct rating percentage:  20.564661708426602 %  at epoch  1
+Epoch: 2 Loss: 1.6809
+Epoch: 2 Loss: 1.6793
+Epoch: 2 Loss: 1.6784
+Epoch: 2 Loss: 1.6778
+Epoch: 2 Loss: 1.6771
+Epoch: 2 Loss: 1.6766
+Epoch: 2 Loss: 1.6761
+Epoch: 2 Loss: 1.6755
+Epoch: 2 Loss: 1.6751
+End of epoch 2, mean loss: 1.6746332766188556
+The Hit Ratio @ 10 is  99.19127734854503 %  at epoch  2
+Correct rating percentage:  20.485233590872987 %  at epoch  2
+Epoch: 3 Loss: 1.6702
+Epoch: 3 Loss: 1.6691
+Epoch: 3 Loss: 1.6686
+Epoch: 3 Loss: 1.6684
+Epoch: 3 Loss: 1.6680
+Epoch: 3 Loss: 1.6679
+Epoch: 3 Loss: 1.6677
+Epoch: 3 Loss: 1.6674
+Epoch: 3 Loss: 1.6671
+End of epoch 3, mean loss: 1.6669137584940688
+The Hit Ratio @ 10 is  99.33569210773341 %  at epoch  3
+Correct rating percentage:  20.355260307603437 %  at epoch  3

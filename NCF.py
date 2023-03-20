@@ -13,27 +13,29 @@ class NCF(pl.LightningModule):
             all_movieIds (list): List containing all movieIds (train + test)
     """
     
-    def __init__(self, num_users, num_items, includeRating):
+    def __init__(self, num_users, num_items, includeRating, num_months):
 
         super().__init__()
         self.user_embedding = nn.Embedding(num_embeddings=num_users, embedding_dim=8)
         self.item_embedding = nn.Embedding(num_embeddings=num_items, embedding_dim=8)
+        self.time_embedding = nn.Embedding(num_embeddings=num_months, embedding_dim=8)
         # self.includeRating = includeRating
         # self.rating_embedding = nn.Embedding(num_embeddings=6, embedding_dim=8)
-        self.fc1 = nn.Linear(in_features=16, out_features=64)
+        self.fc1 = nn.Linear(in_features=24, out_features=64)
         self.fc2 = nn.Linear(in_features=64, out_features=32)
         self.includeRating = includeRating
         if self.includeRating:
             self.output = nn.Linear(in_features=32, out_features=11)
         self.outputB = nn.Linear(in_features=32, out_features=1)
         
-    def forward(self, user_input, item_input):
+    def forward(self, user_input, item_input, time_input):
         
         # Pass through embedding layers
         user_embedded = self.user_embedding(user_input)
         item_embedded = self.item_embedding(item_input)
+        time_embedded = self.time_embedding(time_input)
         # Concat the two embedding layers
-        vector = torch.cat([user_embedded, item_embedded], dim=-1)
+        vector = torch.cat([user_embedded, item_embedded, time_embedded], dim=-1)
 
         # Pass through dense layer
         vector = nn.ReLU()(self.fc1(vector))
