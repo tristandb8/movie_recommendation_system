@@ -13,3 +13,7 @@ Move files to "movies_20m" folder
 ```
 python train.py > logs/logfilename.txt
 ```
+## To see how other models perform
+```
+python train1.py > logs/logfilename.txt
+```
