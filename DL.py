@@ -12,28 +12,48 @@ class MovieLensTrainDataset(Dataset):
     
     """
 
-    def __init__(self, ratings, all_movieIds, includeRating):
-        self.users, self.items, self.times, self.labels = self.get_dataset(ratings, all_movieIds, includeRating)
+    def __init__(self, ratings, includeRating, useTime):
+        self.includeRating = includeRating
+        self.useTime = useTime
+        #self.users, self.items, self.times, self.labels
+        self.data = self.get_dataset(ratings)
+        if self.useTime:
+            self.users, self.items, self.times, self.labels = self.data
+        else:
+            self.users, self.items, self.labels = self.data
+            
+    
 
     def __len__(self):
         return len(self.users)
   
     def __getitem__(self, idx):
-        return self.users[idx], self.items[idx], self.times[idx], self.labels[idx]
+        if self.useTime:
+            return self.users[idx], self.items[idx], self.times[idx], self.labels[idx]
+        else:
+            return self.users[idx], self.items[idx], self.labels[idx]
 
-    def get_dataset(self, ratings, all_movieIds, includeRating):
-        users, items, times, labels = [], [], [], []
-        print(1)
-        user_item_set = set(zip(ratings['userId'], ratings['movieId'], ratings['rating'], ratings['timestamp']))
-        print(2)
-        movieMeanViewTime = ratings.groupby('movieId')['timestamp'].mean().astype(int).to_dict()
-        print(3)
-        num_negatives = 4
-        for u, i, r, t in user_item_set:
+    def get_dataset(self, ratings):
+        all_movieIds = ratings['movieId'].unique()
+        users, items, labels = [], [], []
+        if self.useTime:
+            user_item_set = set(zip(ratings['userId'], ratings['movieId'], ratings['rating'], ratings['timestamp']))
+            movieMeanViewTime = ratings.groupby('movieId')['timestamp'].mean().astype(int).to_dict()
+            times = []
+        else:
+            user_item_set = set(zip(ratings['userId'], ratings['movieId'], ratings['rating']))
+
+        num_negatives = 5
+        for data in user_item_set:
+            if self.useTime:
+                u, i, r, t = data
+                times.append(t)
+            else:
+                u, i, r = data
             users.append(u)
             items.append(i)
-            times.append(t)
-            if includeRating:
+            
+            if self.includeRating:
                 labels.append(r)
             else:
                 labels.append(1)
@@ -43,7 +63,11 @@ class MovieLensTrainDataset(Dataset):
                     negative_item = np.random.choice(all_movieIds)
                 users.append(u)
                 items.append(negative_item)
-                times.append(movieMeanViewTime[negative_item])
-                labels.append(0)
 
-        return torch.tensor(users), torch.tensor(items), torch.tensor(times), torch.tensor(labels)
+                if self.useTime:
+                    times.append(movieMeanViewTime[negative_item])
+                labels.append(0)
+        if self.useTime:
+            return torch.tensor(users), torch.tensor(items), torch.tensor(times), torch.tensor(labels)
+        else:
+            return torch.tensor(users), torch.tensor(items), torch.tensor(labels)
